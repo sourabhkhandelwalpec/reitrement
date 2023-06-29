@@ -3,12 +3,66 @@
 <head>
   <title>How long can you fund for your expenses after retirement?</title>
   <style>
+    body {
+      background-color: #006241;
+      color: #FFFFFF;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    
+    h1, h2 {
+      color: #006241;
+    }
+    
     .input-label {
       display: inline-block;
       width: 250px;
+      color: #006241;
     }
-    input[type="range"] {
-      width: 300px;
+    
+    input[type="number"], input[type="range"] {
+      background-color: #FFFFFF;
+      border: 1px solid #006241;
+      color: #006241;
+      padding: 5px;
+      border-radius: 3px;
+      width: 200px;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: #006241;
+      cursor: pointer;
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: #006241;
+      cursor: pointer;
+    }
+    
+    button {
+      background-color: #006241;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: #004026;
+    }
+    
+    #results {
+      background-color: #FFFFFF;
+      padding: 20px;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -17,7 +71,7 @@
   
   <form id="retirementForm">
     <div>
-      <label class="input-label">Whats your current age?:</label>
+      <label class="input-label">What's your current age?:</label>
       <input type="number" id="currentAge" required>
     </div>
     <br>
@@ -32,7 +86,7 @@
     </div>
     <br>
     <div>
-      <label class="input-label">How much money do you save on monthly basis from your salary? (after tax, in your currency):</label>
+      <label class="input-label">How much money do you save on a monthly basis from your salary? (after tax, in your currency):</label>
       <input type="number" id="monthlySavings" required>
     </div>
     <br>
@@ -48,13 +102,13 @@
     </div>
     <br>
     <div>
-      <label class="input-label">At what rate do you think you can get returns after investing your monthly salary savings? (adjust for tax)::</label>
+      <label class="input-label">At what rate do you think you can get returns after investing your monthly salary savings? (adjust for tax):</label>
       <input type="range" id="investmentReturn" min="0" max="25" value="5" step="1">
       <span id="investmentReturnDisplay">5%</span>
     </div>
     <br>
     <div>
-      <label class="input-label">How much do you think you yearly salary can grow? (adjust for tax):</label>
+      <label class="input-label">How much do you think your yearly salary can grow? (adjust for tax):</label>
       <input type="range" id="salaryGrowth" min="0" max="25" value="3" step="1">
       <span id="salaryGrowthDisplay">3%</span>
     </div>
@@ -66,7 +120,7 @@
     </div>
     <br>
     <div>
-      <label class="input-label">Would you continue to invest your savings after retirement? If yes how much rate of return can you get? :</label>
+      <label class="input-label">Would you continue to invest your savings after retirement? If yes, how much rate of return can you get?:</label>
       <input type="range" id="ongoingSavingsGrowth" min="0" max="25" value="5" step="1">
       <span id="ongoingSavingsGrowthDisplay">5%</span>
     </div>
@@ -106,18 +160,18 @@
       
       const totalYearlyExpenses = 12 * monthlyExpenses;
       const yearsToRetirement = retirementAge - currentAge;
-      const futureValueExistingSavings = existingSavings * (1 + growthExistingSavings) ** yearsToRetirement;
+      const futureValueExistingSavings = existingSavings * Math.pow(1 + growthExistingSavings, yearsToRetirement);
       
       let futureValueMonthlySavings = 0;
       let yearlySavings = monthlySavings * 12;
       let yearlyExpenses = totalYearlyExpenses;
       for (let i = 1; i <= yearsToRetirement; i++) {
-        futureValueMonthlySavings += yearlySavings * (1 + investmentReturn) ** (yearsToRetirement - i+1);
+        futureValueMonthlySavings += yearlySavings * Math.pow(1 + investmentReturn, yearsToRetirement - i + 1);
         yearlySavings *= (1 + salaryGrowth);
         yearlyExpenses *= (1 + inflation);
       }
       
-      document.getElementById('totalExpenses').textContent = 'Yearly Expenses in first year of retirement (assuming you want to live with same lifestyle as you are living today, this will continue to increase every year due to inflation): ' + yearlyExpenses.toFixed(2);
+      document.getElementById('totalExpenses').textContent = 'Yearly Expenses in the first year of retirement (assuming you want to live with the same lifestyle as you are living today, this will continue to increase every year due to inflation): ' + yearlyExpenses.toFixed(2);
       document.getElementById('yearsToRetirement').textContent = 'Number of Years to Retirement: ' + yearsToRetirement;
       document.getElementById('futureValueExistingSavings').textContent = 'Your existing savings will grow to: ' + futureValueExistingSavings.toFixed(2);
       document.getElementById('futureValueMonthlySavings').textContent = 'Your monthly salary savings will amount to: ' + futureValueMonthlySavings.toFixed(2);
@@ -128,7 +182,7 @@
       let remainingFunds = futureValueSum;
       while (remainingFunds >= yearlyExpenses) {
         remainingFunds -= yearlyExpenses;
-        remainingFunds = remainingFunds*(1+ongoingSavingsGrowth)
+        remainingFunds *= (1 + ongoingSavingsGrowth);
         yearlyExpenses *= (1 + inflation);
         remainingYears++;
       }
